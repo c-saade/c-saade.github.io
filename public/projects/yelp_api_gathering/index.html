@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"><head>
+  
+                           
+     
+
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.111.3">
+<title>Eating out in Lyon - Data gathering | Camille Saade</title>
+
+
+
+
+
+
+
+
+  
+    
+  
+<meta name="description" content="Gathering restaurant ratings using the yelp fusion API.">
+
+
+<meta property="og:site_name" content="Camille Saade">
+<meta property="og:title" content="Eating out in Lyon - Data gathering | Camille Saade">
+<meta property="og:description" content="Gathering restaurant ratings using the yelp fusion API." />
+<meta property="og:type" content="page" />
+<meta property="og:url" content="https://c-saade.github.io/projects/yelp_api_gathering/" />
+<meta property="og:locale" content="en">
+
+
+
+
+    
+        <meta property="og:image" content="https://c-saade.github.io/projects/yelp_api_gathering/railway_restaurant_featured.jpg" >
+        <meta property="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="https://c-saade.github.io/projects/yelp_api_gathering/railway_restaurant_featured.jpg" >
+    
+    
+  <meta itemprop="name" content="Eating out in Lyon - Data gathering">
+<meta itemprop="description" content="Summary This is the first part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon. Follow me as I:
+extract restaurant ratings using the yelp fusion API and the request package, transform the json response to a tidy dataframe, ensure the data integrity of variables of interest. # loading all necessary packages at once import requests import json import pandas as pd import numpy as np Gathering restaurant data from the yelp API The yelp API allows to get 50 results at a time up to the first 1000 results of a given query."><meta itemprop="datePublished" content="2022-06-01T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-06-01T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1548"><meta itemprop="image" content="https://c-saade.github.io/projects/yelp_api_gathering/railway_restaurant_featured.jpg">
+<meta itemprop="keywords" content="" />
+  
+  
+  <!--[if IE]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  
+  
+  <link rel="stylesheet" href="/style.main.min.2e4a8291b96b2dcb4474650132e0e5aff4a7b7e1b7896ea2c52d9438445705e8.css" integrity="sha256-LkqCkblrLctEdGUBMuDlr/Snt&#43;G3iW6ixS2UOERXBeg=" media="screen">
+  
+  
+  <script src="/panelset.min.ed1ac24b6e16f4e2481e3d1d098ae66f5bc77438aef619e6e266d8ac5b00dc72.js" type="text/javascript"></script>
+  
+  
+  <script src="/main.min.4e826f267a9dde26627cbfd80419eca6153e5b3209229e861b56433f615ea2dd.js" type="text/javascript"></script>
+</head>
+<body>
+      <div class="grid-container single">
+<header class="site-header pt4 pb2 mb4 bb b--transparent ph5 headroom z-max" role="banner">
+  <nav class="site-nav db dt-l w-100" role="navigation">
+    <a class="site-brand db dtc-l v-mid link no-underline w-100 w-33-l tc tl-l" href="https://c-saade.github.io/" title="Home">
+      <img src="/img/blogophonic-mark-dark.png" class="dib db-l h2 w-auto" alt="Camille Saade">
+    </a>
+    <div class="site-links db dtc-l v-mid w-100 w-47-l tc tr-l mt3 mt0-l ttu tracked">
+      
+        
+        
+        
+      <a class="link f6 f5-l dib pv1 ph2 " href="/resume/" title="Resume">Resume</a>
+      
+        
+        
+        
+      <a class="link f6 f5-l dib pv1 ph2 active" href="/projects/" title="Project Portfolio">Projects</a>
+      
+        
+        
+        
+      <a class="link f6 f5-l dib pv1 ph2 " href="/about/" title="About">About</a>
+      
+      
+    </div>
+  </nav>
+</header>
+
+<main class="page-main pa4" role="main">
+  <section class="page-content mw7 center">
+    <article class="post-content pa0 ph4-l">
+      <header class="post-header">
+        <h1 class="f1 lh-solid measure-narrow mb3 fw4">Eating out in Lyon - Data gathering</h1>
+        <h4 class="f4 mt0 mb4 lh-title measure">Gathering restaurant ratings using the yelp fusion API.</h4>
+        
+        <p class="f7 db mv0 ttu">June 1, 2022</p>
+
+      
+
+      </header>
+      <section class="post-body pt5 pb4">
+        
+
+
+
+<h2 id="summary">Summary
+  <a href="#summary"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h2>
+<p>This is the first part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon. Follow me as I:</p>
+<ul>
+<li>extract restaurant ratings using the yelp fusion API and the request package,</li>
+<li>transform the json response to a tidy dataframe,</li>
+<li>ensure the data integrity of variables of interest.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># loading all necessary packages at once</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">requests</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">json</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">pandas</span> <span style="color:#000;font-weight:bold">as</span> <span style="color:#555">pd</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">numpy</span> <span style="color:#000;font-weight:bold">as</span> <span style="color:#555">np</span>
+</span></span></code></pre></div>
+
+
+
+<h2 id="gathering-restaurant-data-from-the-yelp-api">Gathering restaurant data from the yelp API
+  <a href="#gathering-restaurant-data-from-the-yelp-api"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h2>
+<p>The yelp API allows to get 50 results at a time up to the first 1000 results of a given query.
+To overcome this limitation, we can first get all the restaurant subcategories (<em>e.g.</em>, italian) and then loop over all categories to get up to 1000 restaurants by categories.</p>
+
+
+
+
+<h3 id="fetching-all-restaurant-subcategories">Fetching all restaurant subcategories:
+  <a href="#fetching-all-restaurant-subcategories"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h3>
+<p>I first get the categories using the &lsquo;categories&rsquo; endpoint:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># loading my yelp API key</span>
+</span></span><span style="display:flex;"><span>key_file <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">open</span>(<span style="color:#d14">&#39;temp_api_key.txt&#39;</span>)
+</span></span><span style="display:flex;"><span>api_key <span style="color:#000;font-weight:bold">=</span> key_file<span style="color:#000;font-weight:bold">.</span>readline()<span style="color:#000;font-weight:bold">.</span>rstrip(<span style="color:#d14">&#39;</span><span style="color:#d14">\n</span><span style="color:#d14">&#39;</span>)
+</span></span><span style="display:flex;"><span>key_file<span style="color:#000;font-weight:bold">.</span>close()
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># replace the above lines with your own key:</span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># api_key = &lt;your api key&gt;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># specifying the headers, endpoint and parameters:</span>
+</span></span><span style="display:flex;"><span>headers <span style="color:#000;font-weight:bold">=</span> {<span style="color:#d14">&#39;Authorization&#39;</span>: <span style="color:#d14">&#39;bearer </span><span style="color:#d14">%s</span><span style="color:#d14">&#39;</span> <span style="color:#000;font-weight:bold">%</span> api_key}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>endpoint <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;https://api.yelp.com/v3/categories&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>parameters <span style="color:#000;font-weight:bold">=</span> {<span style="color:#d14">&#39;location&#39;</span>: <span style="color:#d14">&#39;Lyon, FR&#39;</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># let the request package build the url and get a response:</span>
+</span></span><span style="display:flex;"><span>response <span style="color:#000;font-weight:bold">=</span> requests<span style="color:#000;font-weight:bold">.</span>get(url <span style="color:#000;font-weight:bold">=</span> endpoint, params <span style="color:#000;font-weight:bold">=</span> parameters, headers <span style="color:#000;font-weight:bold">=</span> headers)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># transform the response into a data frame</span>
+</span></span><span style="display:flex;"><span>categories_df <span style="color:#000;font-weight:bold">=</span> pd<span style="color:#000;font-weight:bold">.</span>json_normalize(response<span style="color:#000;font-weight:bold">.</span>json()[<span style="color:#d14">&#39;categories&#39;</span>])
+</span></span><span style="display:flex;"><span>categories_df<span style="color:#000;font-weight:bold">.</span>head()
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>alias</th>
+      <th>title</th>
+      <th>parent_aliases</th>
+      <th>country_whitelist</th>
+      <th>country_blacklist</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3dprinting</td>
+      <td>3D Printing</td>
+      <td>[localservices]</td>
+      <td>[]</td>
+      <td>[]</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>abruzzese</td>
+      <td>Abruzzese</td>
+      <td>[italian]</td>
+      <td>[IT]</td>
+      <td>[]</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>absinthebars</td>
+      <td>Absinthe Bars</td>
+      <td>[bars]</td>
+      <td>[CZ]</td>
+      <td>[]</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>acaibowls</td>
+      <td>Acai Bowls</td>
+      <td>[food]</td>
+      <td>[]</td>
+      <td>[AR, CL, IT, MX, PL, TR]</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>accessories</td>
+      <td>Accessories</td>
+      <td>[fashion]</td>
+      <td>[]</td>
+      <td>[]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>As you can see above, I now have a dataframe with all the yelp categories. Most of them have nothing to do with food, such as the first one (&lsquo;3dprinting&rsquo;). To keep only categories of interest, I filter the data frame to keep only the rows whose parent categories (&lsquo;parent_aliases&rsquo; column) contains &lsquo;restaurants&rsquo;:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># creating a column that states whether the row is a sub-category of &#39;restaurants&#39;:</span>
+</span></span><span style="display:flex;"><span>categories_df[<span style="color:#d14">&#39;is_restaurant&#39;</span>] <span style="color:#000;font-weight:bold">=</span> [<span style="color:#d14">&#39;restaurants&#39;</span> <span style="color:#000;font-weight:bold">in</span> parent <span style="color:#000;font-weight:bold">for</span> parent <span style="color:#000;font-weight:bold">in</span> categories_df[<span style="color:#d14">&#39;parent_aliases&#39;</span>]]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># filtering by the &#39;is_restaurant&#39; column:</span>
+</span></span><span style="display:flex;"><span>restaurants_df <span style="color:#000;font-weight:bold">=</span> categories_df[categories_df<span style="color:#000;font-weight:bold">.</span>is_restaurant]
+</span></span><span style="display:flex;"><span>restaurants_df<span style="color:#000;font-weight:bold">.</span>head()
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>alias</th>
+      <th>title</th>
+      <th>parent_aliases</th>
+      <th>country_whitelist</th>
+      <th>country_blacklist</th>
+      <th>is_restaurant</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>18</th>
+      <td>afghani</td>
+      <td>Afghan</td>
+      <td>[restaurants]</td>
+      <td>[]</td>
+      <td>[MX, TR]</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>african</td>
+      <td>African</td>
+      <td>[restaurants]</td>
+      <td>[]</td>
+      <td>[TR]</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <td>andalusian</td>
+      <td>Andalusian</td>
+      <td>[restaurants]</td>
+      <td>[ES, IT]</td>
+      <td>[]</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>53</th>
+      <td>arabian</td>
+      <td>Arabic</td>
+      <td>[restaurants]</td>
+      <td>[]</td>
+      <td>[DK]</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <td>argentine</td>
+      <td>Argentine</td>
+      <td>[restaurants]</td>
+      <td>[]</td>
+      <td>[FI]</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+<h3 id="finding-all-restaurants-in-lyon">Finding all restaurants in Lyon
+  <a href="#finding-all-restaurants-in-lyon"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h3>
+<p>We can now fetch restaurants information by looping over all categories, using the &lsquo;businesses/search&rsquo; endpoint of the yelp API. I first declare some parameters by the query:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>key_file <span style="color:#000;font-weight:bold">=</span> <span style="color:#0086b3">open</span>(<span style="color:#d14">&#39;temp_api_key.txt&#39;</span>)
+</span></span><span style="display:flex;"><span>api_key <span style="color:#000;font-weight:bold">=</span> key_file<span style="color:#000;font-weight:bold">.</span>readline()<span style="color:#000;font-weight:bold">.</span>rstrip(<span style="color:#d14">&#39;</span><span style="color:#d14">\n</span><span style="color:#d14">&#39;</span>)
+</span></span><span style="display:flex;"><span>key_file<span style="color:#000;font-weight:bold">.</span>close()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>headers <span style="color:#000;font-weight:bold">=</span> {<span style="color:#d14">&#39;Authorization&#39;</span>: <span style="color:#d14">&#39;bearer </span><span style="color:#d14">%s</span><span style="color:#d14">&#39;</span> <span style="color:#000;font-weight:bold">%</span> api_key}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>endpoint <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;https://api.yelp.com/v3/businesses/search&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>parameters <span style="color:#000;font-weight:bold">=</span> {<span style="color:#d14">&#39;location&#39;</span>: <span style="color:#d14">&#39;Lyon, FR&#39;</span>, <span style="color:#998;font-style:italic"># where to look</span>
+</span></span><span style="display:flex;"><span>             <span style="color:#d14">&#39;offset&#39;</span> : <span style="color:#099">0</span>, <span style="color:#998;font-style:italic"># starting from the first result</span>
+</span></span><span style="display:flex;"><span>             <span style="color:#d14">&#39;limit&#39;</span>: <span style="color:#099">50</span>, <span style="color:#998;font-style:italic"># taking 50 results (the maximum available at a time)</span>
+</span></span><span style="display:flex;"><span>             <span style="color:#d14">&#39;term&#39;</span>: <span style="color:#d14">&#39;restaurants&#39;</span>}
+</span></span></code></pre></div><p>I then declare a list in which to store the response and loop over categories:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>restaurants_ratings <span style="color:#000;font-weight:bold">=</span> []
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># looping over categories</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">for</span> category <span style="color:#000;font-weight:bold">in</span> restaurants_df<span style="color:#000;font-weight:bold">.</span>alias:
+</span></span><span style="display:flex;"><span>    <span style="color:#998;font-style:italic"># specifying the category in the parameters</span>
+</span></span><span style="display:flex;"><span>    parameters[<span style="color:#d14">&#39;categories&#39;</span>] <span style="color:#000;font-weight:bold">=</span> category
+</span></span><span style="display:flex;"><span>    <span style="color:#998;font-style:italic"># looping a second time to fetch 50 results at a time</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">for</span> offset <span style="color:#000;font-weight:bold">in</span> <span style="color:#0086b3">range</span>(<span style="color:#099">0</span>, <span style="color:#099">1000</span>, <span style="color:#099">50</span>):
+</span></span><span style="display:flex;"><span>        parameters[<span style="color:#d14">&#39;offset&#39;</span>] <span style="color:#000;font-weight:bold">=</span> offset
+</span></span><span style="display:flex;"><span>        response <span style="color:#000;font-weight:bold">=</span> requests<span style="color:#000;font-weight:bold">.</span>get(url <span style="color:#000;font-weight:bold">=</span> endpoint, params <span style="color:#000;font-weight:bold">=</span> parameters, headers <span style="color:#000;font-weight:bold">=</span> headers)
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>        <span style="color:#998;font-style:italic"># we break the loop if there are no restaurants left</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#000;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">not</span> response<span style="color:#000;font-weight:bold">.</span>json()<span style="color:#000;font-weight:bold">.</span>get(<span style="color:#d14">&#39;businesses&#39;</span>, <span style="color:#000;font-weight:bold">False</span>):
+</span></span><span style="display:flex;"><span>            <span style="color:#000;font-weight:bold">break</span>
+</span></span><span style="display:flex;"><span>            
+</span></span><span style="display:flex;"><span>        <span style="color:#998;font-style:italic"># we extend the restaurants list with the new response</span>
+</span></span><span style="display:flex;"><span>        restaurants_ratings<span style="color:#000;font-weight:bold">.</span>extend(response<span style="color:#000;font-weight:bold">.</span>json()[<span style="color:#d14">&#39;businesses&#39;</span>])
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#0086b3">len</span>(restaurants_ratings)
+</span></span></code></pre></div><pre><code>4995
+</code></pre>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>restaurants_ratings[<span style="color:#099">0</span>]
+</span></span></code></pre></div><pre><code>{'id': 'D3NHTerar80aeR6mlyE2mw',
+ 'alias': 'azur-afghan-lyon',
+ 'name': 'Azur Afghan',
+ 'image_url': 'https://s3-media1.fl.yelpcdn.com/bphoto/8i5nsqv5tbxxg8HdndPY4Q/o.jpg',
+ 'is_closed': False,
+ 'url': 'https://www.yelp.com/biz/azur-afghan-lyon?adjust_creative=qbeDf2GYKB1Prc0VgyQp0A&amp;utm_campaign=yelp_api_v3&amp;utm_medium=api_v3_business_search&amp;utm_source=qbeDf2GYKB1Prc0VgyQp0A',
+ 'review_count': 23,
+ 'categories': [{'alias': 'afghani', 'title': 'Afghan'}],
+ 'rating': 4.0,
+ 'coordinates': {'latitude': 45.77502, 'longitude': 4.82875},
+ 'transactions': [],
+ 'price': '€€',
+ 'location': {'address1': '6 Rue Villeneuve',
+  'address2': None,
+  'address3': None,
+  'city': 'Lyon',
+  'zip_code': '69004',
+  'country': 'FR',
+  'state': '69',
+  'display_address': ['6 Rue Villeneuve', '69004 Lyon', 'France']},
+ 'phone': '+33478396619',
+ 'display_phone': '+33 4 78 39 66 19',
+ 'distance': 1845.795955776875}
+</code></pre>
+
+
+
+
+<h2 id="data-cleaning">Data cleaning
+  <a href="#data-cleaning"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h2>
+<p>We gathered the data from 4995 restaurants in a json format. We can first transform it to a data frame using the &lsquo;json_normalize&rsquo; function which deals fairly well with nested jsons:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data <span style="color:#000;font-weight:bold">=</span> pd<span style="color:#000;font-weight:bold">.</span>json_normalize(restaurants_ratings)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data<span style="color:#000;font-weight:bold">.</span>info()
+</span></span></code></pre></div><pre><code>&lt;class 'pandas.core.frame.DataFrame'&gt;
+RangeIndex: 4995 entries, 0 to 4994
+Data columns (total 24 columns):
+ #   Column                    Non-Null Count  Dtype  
+---  ------                    --------------  -----  
+ 0   id                        4995 non-null   object 
+ 1   alias                     4995 non-null   object 
+ 2   name                      4995 non-null   object 
+ 3   image_url                 4995 non-null   object 
+ 4   is_closed                 4995 non-null   bool   
+ 5   url                       4995 non-null   object 
+ 6   review_count              4995 non-null   int64  
+ 7   categories                4995 non-null   object 
+ 8   rating                    4995 non-null   float64
+ 9   transactions              4995 non-null   object 
+ 10  price                     2681 non-null   object 
+ 11  phone                     4995 non-null   object 
+ 12  display_phone             4995 non-null   object 
+ 13  distance                  4995 non-null   float64
+ 14  coordinates.latitude      4992 non-null   float64
+ 15  coordinates.longitude     4992 non-null   float64
+ 16  location.address1         4987 non-null   object 
+ 17  location.address2         3122 non-null   object 
+ 18  location.address3         2730 non-null   object 
+ 19  location.city             4995 non-null   object 
+ 20  location.zip_code         4995 non-null   object 
+ 21  location.country          4995 non-null   object 
+ 22  location.state            4995 non-null   object 
+ 23  location.display_address  4995 non-null   object 
+dtypes: bool(1), float64(4), int64(1), object(18)
+memory usage: 902.5+ KB
+</code></pre>
+<p>We can already drop columns that don&rsquo;t interest us:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># droping useless columns:</span>
+</span></span><span style="display:flex;"><span>data<span style="color:#000;font-weight:bold">.</span>drop([<span style="color:#d14">&#39;image_url&#39;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#d14">&#39;is_closed&#39;</span>, <span style="color:#998;font-style:italic">#</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#d14">&#39;url&#39;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#d14">&#39;transactions&#39;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#d14">&#39;phone&#39;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#d14">&#39;display_phone&#39;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#d14">&#39;distance&#39;</span>,
+</span></span><span style="display:flex;"><span>          <span style="color:#d14">&#39;location.state&#39;</span> <span style="color:#998;font-style:italic"># redundant with location.zip_code</span>
+</span></span><span style="display:flex;"><span>          ],
+</span></span><span style="display:flex;"><span>         axis <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>, inplace <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span></code></pre></div><p>Let&rsquo;s check that all the restaurants are in Lyon, France:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[<span style="color:#d14">&#39;location.country&#39;</span>]<span style="color:#000;font-weight:bold">.</span>value_counts()
+</span></span></code></pre></div><pre><code>FR    4994
+IT       1
+Name: location.country, dtype: int64
+</code></pre>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[<span style="color:#d14">&#39;location.city&#39;</span>]<span style="color:#000;font-weight:bold">.</span>value_counts()
+</span></span></code></pre></div><pre><code>Lyon             3678
+Villeurbanne      429
+Bron               74
+Vénissieux         60
+Oullins            54
+                 ... 
+Roanne              1
+Lyon 7Eme           1
+Saint-Paul          1
+Lyon 08             1
+Oullins Cedex       1
+Name: location.city, Length: 131, dtype: int64
+</code></pre>
+<p>It seems that one italian restaurants and quite a lot of restaurants from cities near Lyon have gotten into our data, so let&rsquo;s filter by city:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># lowering the city field to make sure we don&#39;t exlude any restaurants due to case issues</span>
+</span></span><span style="display:flex;"><span>data[<span style="color:#d14">&#39;location.city&#39;</span>] <span style="color:#000;font-weight:bold">=</span> data[<span style="color:#d14">&#39;location.city&#39;</span>]<span style="color:#000;font-weight:bold">.</span>str<span style="color:#000;font-weight:bold">.</span>lower()
+</span></span><span style="display:flex;"><span>data <span style="color:#000;font-weight:bold">=</span> data[data[<span style="color:#d14">&#39;location.city&#39;</span>]<span style="color:#000;font-weight:bold">.</span>str<span style="color:#000;font-weight:bold">.</span>find(<span style="color:#d14">&#39;lyon&#39;</span>) <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#099">0</span>]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># checking that all restaurants are now in lyon</span>
+</span></span><span style="display:flex;"><span>data[<span style="color:#d14">&#39;location.city&#39;</span>]<span style="color:#000;font-weight:bold">.</span>value_counts()
+</span></span></code></pre></div><pre><code>lyon                      3680
+sainte-foy-lès-lyon         11
+lyon 06                     10
+lyon 07                      9
+lyon 6eme                    9
+lyon 03                      8
+lyon 2eme                    8
+lyon 9eme                    7
+lyon 1er                     6
+sainte foy les lyon          5
+lyon 02                      5
+lyon-7e-arrondissement       4
+lyon-2e-arrondissement       4
+lyon 5eme                    4
+lyon 01                      4
+lyon 04                      3
+lyon-5e-arrondissement       3
+lyon 05                      2
+lyon 3eme                    2
+lyon-3e-arrondissement       2
+lyon  eme                    1
+lyon 08                      1
+lyon cedex 3                 1
+lyon 7eme                    1
+lyon 8eme                    1
+lyon 3 eme                   1
+lyon 09                      1
+sainte foy lès lyon          1
+Name: location.city, dtype: int64
+</code></pre>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># excluding restaurants from &#39;sainte-foy-les-lyon&#39; which is not in lyon</span>
+</span></span><span style="display:flex;"><span>data <span style="color:#000;font-weight:bold">=</span> data[data[<span style="color:#d14">&#39;location.city&#39;</span>]<span style="color:#000;font-weight:bold">.</span>str<span style="color:#000;font-weight:bold">.</span>find(<span style="color:#d14">&#39;sainte&#39;</span>) <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># checking that all restaurants are now in lyon</span>
+</span></span><span style="display:flex;"><span>data[<span style="color:#d14">&#39;location.city&#39;</span>]<span style="color:#000;font-weight:bold">.</span>value_counts()
+</span></span></code></pre></div><pre><code>lyon                      3680
+lyon 06                     10
+lyon 6eme                    9
+lyon 07                      9
+lyon 03                      8
+lyon 2eme                    8
+lyon 9eme                    7
+lyon 1er                     6
+lyon 02                      5
+lyon-2e-arrondissement       4
+lyon-7e-arrondissement       4
+lyon 5eme                    4
+lyon 01                      4
+lyon-5e-arrondissement       3
+lyon 04                      3
+lyon 3eme                    2
+lyon 05                      2
+lyon-3e-arrondissement       2
+lyon 08                      1
+lyon cedex 3                 1
+lyon  eme                    1
+lyon 7eme                    1
+lyon 8eme                    1
+lyon 3 eme                   1
+lyon 09                      1
+Name: location.city, dtype: int64
+</code></pre>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># We can finally drop the city column, since it is redundant with zip codes</span>
+</span></span><span style="display:flex;"><span>data<span style="color:#000;font-weight:bold">.</span>drop(<span style="color:#d14">&#39;location.city&#39;</span>, axis <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>, inplace <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span></code></pre></div><p>We can have a final check of our filter using zip-codes: Lyon is from 69001 to 69009, so there should be no other zipcodes:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[<span style="color:#d14">&#39;location.zip_code&#39;</span>]<span style="color:#000;font-weight:bold">.</span>value_counts()
+</span></span></code></pre></div><pre><code>69003    710
+69002    658
+69007    574
+69006    552
+69001    468
+69005    293
+69009    199
+69004    150
+69008    148
+          10
+69100      3
+69000      3
+26150      2
+69300      2
+69200      1
+69363      1
+69326      1
+69800      1
+69500      1
+Name: location.zip_code, dtype: int64
+</code></pre>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># dropping restaurants with zip-codes outside of Lyon</span>
+</span></span><span style="display:flex;"><span>data <span style="color:#000;font-weight:bold">=</span> data[(data[<span style="color:#d14">&#39;location.zip_code&#39;</span>]<span style="color:#000;font-weight:bold">.</span>isin([<span style="color:#d14">&#39;69001&#39;</span>, <span style="color:#d14">&#39;69002&#39;</span>, <span style="color:#d14">&#39;69003&#39;</span>, <span style="color:#d14">&#39;69004&#39;</span>,
+</span></span><span style="display:flex;"><span>                                          <span style="color:#d14">&#39;69005&#39;</span>, <span style="color:#d14">&#39;69006&#39;</span>, <span style="color:#d14">&#39;69007&#39;</span>, <span style="color:#d14">&#39;69008&#39;</span>,
+</span></span><span style="display:flex;"><span>                                          <span style="color:#d14">&#39;69009&#39;</span>]))]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#0086b3">len</span>(data)
+</span></span></code></pre></div><pre><code>3752
+</code></pre>
+<p>We can then inspect missing values:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data<span style="color:#000;font-weight:bold">.</span>isna()<span style="color:#000;font-weight:bold">.</span>sum()
+</span></span></code></pre></div><pre><code>id                             0
+alias                          0
+name                           0
+review_count                   0
+categories                     0
+rating                         0
+price                       1556
+coordinates.latitude           0
+coordinates.longitude          0
+location.address1              5
+location.address2           1364
+location.address3           1722
+location.zip_code              0
+location.country               0
+location.display_address       0
+dtype: int64
+</code></pre>
+<p>Missing secondary and third addresses are not an issues since most places only have a primary adress. Missing prices might be concerning if we want to later analyse ratings vs price. Lastly, we can drop the rows with a missing value in coordinates and primary address, since the only concern a few restaurants.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data<span style="color:#000;font-weight:bold">.</span>dropna(subset <span style="color:#000;font-weight:bold">=</span> [<span style="color:#d14">&#39;coordinates.latitude&#39;</span>, <span style="color:#d14">&#39;coordinates.longitude&#39;</span>, <span style="color:#d14">&#39;location.address1&#39;</span>], inplace <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[data<span style="color:#000;font-weight:bold">.</span>columns[:<span style="color:#099">8</span>]]<span style="color:#000;font-weight:bold">.</span>head()
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>alias</th>
+      <th>name</th>
+      <th>review_count</th>
+      <th>categories</th>
+      <th>rating</th>
+      <th>price</th>
+      <th>coordinates.latitude</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>D3NHTerar80aeR6mlyE2mw</td>
+      <td>azur-afghan-lyon</td>
+      <td>Azur Afghan</td>
+      <td>23</td>
+      <td>[{'alias': 'afghani', 'title': 'Afghan'}]</td>
+      <td>4.0</td>
+      <td>€€</td>
+      <td>45.775020</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>zmk41IUwIkvO_eM0UGD7Sg</td>
+      <td>sufy-lyon</td>
+      <td>Sufy</td>
+      <td>2</td>
+      <td>[{'alias': 'indpak', 'title': 'Indian'}, {'ali...</td>
+      <td>3.5</td>
+      <td>NaN</td>
+      <td>45.752212</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>ee4wtKIBI_yTz0fJD054pg</td>
+      <td>tendance-afghane-lyon</td>
+      <td>Tendance Afghane</td>
+      <td>1</td>
+      <td>[{'alias': 'afghani', 'title': 'Afghan'}]</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>45.759540</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Vo0U5EcXbh7qlpdaQwZchA</td>
+      <td>le-conakry-lyon</td>
+      <td>Le Conakry</td>
+      <td>9</td>
+      <td>[{'alias': 'african', 'title': 'African'}]</td>
+      <td>4.0</td>
+      <td>€€</td>
+      <td>45.750642</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-mFHJBuCxZJ_wJrO-o2Ypw</td>
+      <td>afc-africa-food-concept-lyon</td>
+      <td>AFC Africa Food Concept</td>
+      <td>8</td>
+      <td>[{'alias': 'african', 'title': 'African'}, {'a...</td>
+      <td>3.5</td>
+      <td>€€</td>
+      <td>45.754336</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[data<span style="color:#000;font-weight:bold">.</span>columns[<span style="color:#099">8</span>:]]<span style="color:#000;font-weight:bold">.</span>head()
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>coordinates.longitude</th>
+      <th>location.address1</th>
+      <th>location.address2</th>
+      <th>location.address3</th>
+      <th>location.zip_code</th>
+      <th>location.country</th>
+      <th>location.display_address</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>4.828750</td>
+      <td>6 Rue Villeneuve</td>
+      <td>None</td>
+      <td>None</td>
+      <td>69004</td>
+      <td>FR</td>
+      <td>[6 Rue Villeneuve, 69004 Lyon, France]</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.864384</td>
+      <td>34 rue Jeanne Hachette</td>
+      <td></td>
+      <td>None</td>
+      <td>69003</td>
+      <td>FR</td>
+      <td>[34 rue Jeanne Hachette, 69003 Lyon, France]</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4.825560</td>
+      <td>25 Rue Tramassac</td>
+      <td></td>
+      <td></td>
+      <td>69005</td>
+      <td>FR</td>
+      <td>[25 Rue Tramassac, 69005 Lyon, France]</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4.849127</td>
+      <td>112 Grande rue de la Guillotière</td>
+      <td></td>
+      <td></td>
+      <td>69007</td>
+      <td>FR</td>
+      <td>[112 Grande rue de la Guillotière, 69007 Lyon,...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4.843469</td>
+      <td>14 Grande rue de la Guillotière</td>
+      <td></td>
+      <td></td>
+      <td>69007</td>
+      <td>FR</td>
+      <td>[14 Grande rue de la Guillotière, 69007 Lyon, ...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic">##### deal with the &#39;categories&#39; column !!!</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data<span style="color:#000;font-weight:bold">.</span>to_csv(<span style="color:#d14">&#39;data/restaurants.csv&#39;</span>)
+</span></span></code></pre></div>
+        
+        <details closed class="f6 fw7 input-reset">
+  <dl class="f6 lh-copy">
+    <dt class="fw7">Posted on:</dt>
+    <dd class="fw5 ml0">June 1, 2022</dd>
+  </dl>
+  <dl class="f6 lh-copy">
+    <dt class="fw7">Length:</dt>
+    <dd class="fw5 ml0">8 minute read, 1548 words</dd>
+  </dl>
+  
+  
+  
+  <dl class="f6 lh-copy">
+    <dt class="fw7">See Also:</dt>
+    
+  </dl>
+</details>
+
+      </section>
+      <footer class="post-footer">
+        <div class="post-pagination dt w-100 mt4 mb2">
+  
+  
+    <a class="prev dtc pr2 tl v-top fw6"
+    href="https://c-saade.github.io/projects/yelp_api_analysis/">&larr; Eating out in Lyon - Data analysis</a>
+  
+  
+  
+</div>
+
+      </footer>
+    </article>
+    
+  </section>
+</main>
+<footer class="site-footer pv4 bt b--transparent ph5" role="contentinfo">
+  <nav class="db dt-l w-100">
+    <p class="site-copyright f7 db dtc-l v-mid w-100 w-33-l tc tl-l pv2 pv0-l mv0 lh-copy">
+      &copy; 2023 Camille Saade
+      <span class="middot-divider"></span>
+      Made with <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title"><a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/hugo-apero/" rel="dct:source">Hugo Apéro</a></span>.
+      <br />
+      
+Based on <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title"><a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/formspree/blogophonic-hugo" rel="dct:source">Blogophonic</a></span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://formspree.io" property="cc:attributionName" rel="cc:attributionURL">Formspree</a>.
+    </p>
+    
+    <div class="site-social-links db dtc-l v-mid w-100 w-33-l tc pv2 pv0-l mv0">
+      <div class="social-icon-links" aria-hidden="true">
+  
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <a class="link dib h1 w1 ml0 mr2 f6 o-90 glow" href="https://www.linkedin.com/in/camille-saade-a21800231/" title="linkedin" target="_blank" rel="me noopener">
+      <i class="fab fa-linkedin fa-lg fa-fw"></i>
+    </a>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <a class="link dib h1 w1 ml0 mr2 f6 o-90 glow" href="https://github.com/c-saade/" title="github" target="_blank" rel="me noopener">
+      <i class="fab fa-github fa-lg fa-fw"></i>
+    </a>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <a class="link dib h1 w1 ml0 mr2 f6 o-90 glow" href="https://orcid.org/0000-0003-2368-9480" title="orcid" target="_blank" rel="me noopener">
+      <i class="ai ai-orcid fa-lg fa-fw"></i>
+    </a>
+  
+</div>
+
+    </div>
+    
+    <div class="site-links f6 db dtc-l v-mid w-100 w-67-l tc tr-l pv2 pv0-l mv0">
+      
+    </div>
+  </nav>
+  
+    <script>
+
+    var i, text, code, codes = document.getElementsByTagName('code');
+    for (let i = 0; i < codes.length;) {
+      code = codes[i];
+      if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+        text = code.textContent;
+        if (/^\$[^$]/.test(text) && /[^$]\$$/.test(text)) {
+          text = text.replace(/^\$/, '\\(').replace(/\$$/, '\\)');
+          code.textContent = text;
+        }
+        if (/^\\\((.|\s)+\\\)$/.test(text) ||
+            /^\\\[(.|\s)+\\\]$/.test(text) ||
+            /^\$(.|\s)+\$$/.test(text) ||
+            /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+          code.outerHTML = code.innerHTML;  
+          continue;
+        }
+      }
+      i++;
+    }
+</script>
+
+  
+    
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css" integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js" integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+
+    
+  
+  
+</footer>
+
+      </div>
+    </body>
+</html>

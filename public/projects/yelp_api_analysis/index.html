@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr"><head>
+  
+                           
+     
+
+
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="generator" content="Hugo 0.111.3">
+<title>Eating out in Lyon - Data analysis | Camille Saade</title>
+
+
+
+
+
+
+
+
+  
+    
+  
+<meta name="description" content="Analyzing yelp restaurant ratings to find delicious pizza.">
+
+
+<meta property="og:site_name" content="Camille Saade">
+<meta property="og:title" content="Eating out in Lyon - Data analysis | Camille Saade">
+<meta property="og:description" content="Analyzing yelp restaurant ratings to find delicious pizza." />
+<meta property="og:type" content="page" />
+<meta property="og:url" content="https://c-saade.github.io/projects/yelp_api_analysis/" />
+<meta property="og:locale" content="en">
+
+
+
+
+    
+        <meta property="og:image" content="https://c-saade.github.io/projects/yelp_api_analysis/featured.jpg" >
+        <meta property="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="https://c-saade.github.io/projects/yelp_api_analysis/featured.jpg" >
+    
+    
+  <meta itemprop="name" content="Eating out in Lyon - Data analysis">
+<meta itemprop="description" content="Summary This is the second part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon. After gathering and cleaning data in the first part, I now focus on data analysis. In the exploratory data analysis, I focus mainly on the mean price and ratings of restaurants across city districts and restaurant categories. I then go looking for outstanding restaurants — i.e., restaurants with a higher rating than restaurants of the same category and district — using the residuals of a linear model."><meta itemprop="datePublished" content="2022-06-10T00:00:00+00:00" />
+<meta itemprop="dateModified" content="2022-06-10T00:00:00+00:00" />
+<meta itemprop="wordCount" content="1909"><meta itemprop="image" content="https://c-saade.github.io/projects/yelp_api_analysis/featured.jpg">
+<meta itemprop="keywords" content="" />
+  
+  
+  <!--[if IE]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+  
+  
+  <link rel="stylesheet" href="/style.main.min.2e4a8291b96b2dcb4474650132e0e5aff4a7b7e1b7896ea2c52d9438445705e8.css" integrity="sha256-LkqCkblrLctEdGUBMuDlr/Snt&#43;G3iW6ixS2UOERXBeg=" media="screen">
+  
+  
+  <script src="/panelset.min.ed1ac24b6e16f4e2481e3d1d098ae66f5bc77438aef619e6e266d8ac5b00dc72.js" type="text/javascript"></script>
+  
+  
+  <script src="/main.min.4e826f267a9dde26627cbfd80419eca6153e5b3209229e861b56433f615ea2dd.js" type="text/javascript"></script>
+</head>
+<body>
+      <div class="grid-container single">
+<header class="site-header pt4 pb2 mb4 bb b--transparent ph5 headroom z-max" role="banner">
+  <nav class="site-nav db dt-l w-100" role="navigation">
+    <a class="site-brand db dtc-l v-mid link no-underline w-100 w-33-l tc tl-l" href="https://c-saade.github.io/" title="Home">
+      <img src="/img/blogophonic-mark-dark.png" class="dib db-l h2 w-auto" alt="Camille Saade">
+    </a>
+    <div class="site-links db dtc-l v-mid w-100 w-47-l tc tr-l mt3 mt0-l ttu tracked">
+      
+        
+        
+        
+      <a class="link f6 f5-l dib pv1 ph2 " href="/resume/" title="Resume">Resume</a>
+      
+        
+        
+        
+      <a class="link f6 f5-l dib pv1 ph2 active" href="/projects/" title="Project Portfolio">Projects</a>
+      
+        
+        
+        
+      <a class="link f6 f5-l dib pv1 ph2 " href="/about/" title="About">About</a>
+      
+      
+    </div>
+  </nav>
+</header>
+
+<main class="page-main pa4" role="main">
+  <section class="page-content mw7 center">
+    <article class="post-content pa0 ph4-l">
+      <header class="post-header">
+        <h1 class="f1 lh-solid measure-narrow mb3 fw4">Eating out in Lyon - Data analysis</h1>
+        <h4 class="f4 mt0 mb4 lh-title measure">Analyzing yelp restaurant ratings to find delicious pizza.</h4>
+        
+        <p class="f7 db mv0 ttu">June 10, 2022</p>
+
+      
+
+      </header>
+      <section class="post-body pt5 pb4">
+        
+
+
+
+<h2 id="summary">Summary
+  <a href="#summary"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h2>
+<p>This is the second part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon.
+After gathering and cleaning data in the first part, I now focus on data analysis.
+In the exploratory data analysis, I focus mainly on the mean price and ratings of restaurants across city districts and restaurant categories. I then go looking for outstanding restaurants — <em>i.e.</em>, restaurants with a higher rating than restaurants of the same category and district — using the residuals of a linear model.</p>
+
+
+
+
+<h2 id="findings">Findings
+  <a href="#findings"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h2>
+<p>Restaurant properties vary by city district:</p>
+<ul>
+<li>The historical center (Lyon 1 and 2) has the most restaurants, as well as the most reviews, which makes sense given its touristic appeal.</li>
+<li>Restaurants in fancy neighborhoods (Lyon 5 and 6) are the most expensive on average, but this is not reflected by higher ratings.</li>
+<li>Restaurants have better ratings on average in Lyon 7.</li>
+</ul>
+<p>Here are the best pizzerias by district as identified through their residuals:</p>
+<img src="best_pizza.png" title="Best pizza places by district" width="700"/>
+
+
+
+
+<h2 id="analysis">Analysis
+  <a href="#analysis"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h2>
+<p>Let&rsquo;s first import some libraries and take a look at the data:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">numpy</span> <span style="color:#000;font-weight:bold">as</span> <span style="color:#555">np</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">pandas</span> <span style="color:#000;font-weight:bold">as</span> <span style="color:#555">pd</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">matplotlib.pyplot</span> <span style="color:#000;font-weight:bold">as</span> <span style="color:#555">plt</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">seaborn</span> <span style="color:#000;font-weight:bold">as</span> <span style="color:#555">sns</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>data <span style="color:#000;font-weight:bold">=</span> pd<span style="color:#000;font-weight:bold">.</span>read_csv(<span style="color:#d14">&#39;data/restaurants.csv&#39;</span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[data<span style="color:#000;font-weight:bold">.</span>columns[:<span style="color:#099">8</span>]]<span style="color:#000;font-weight:bold">.</span>head()
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>alias</th>
+      <th>name</th>
+      <th>review_count</th>
+      <th>rating</th>
+      <th>price</th>
+      <th>coordinates.latitude</th>
+      <th>coordinates.longitude</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>D3NHTerar80aeR6mlyE2mw</td>
+      <td>azur-afghan-lyon</td>
+      <td>Azur Afghan</td>
+      <td>23</td>
+      <td>4.0</td>
+      <td>€€</td>
+      <td>45.775020</td>
+      <td>4.828750</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ee4wtKIBI_yTz0fJD054pg</td>
+      <td>tendance-afghane-lyon</td>
+      <td>Tendance Afghane</td>
+      <td>1</td>
+      <td>3.0</td>
+      <td>NaN</td>
+      <td>45.759540</td>
+      <td>4.825560</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>zmk41IUwIkvO_eM0UGD7Sg</td>
+      <td>sufy-lyon</td>
+      <td>Sufy</td>
+      <td>2</td>
+      <td>3.5</td>
+      <td>NaN</td>
+      <td>45.752212</td>
+      <td>4.864384</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Vo0U5EcXbh7qlpdaQwZchA</td>
+      <td>le-conakry-lyon</td>
+      <td>Le Conakry</td>
+      <td>9</td>
+      <td>4.0</td>
+      <td>€€</td>
+      <td>45.750642</td>
+      <td>4.849127</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-mFHJBuCxZJ_wJrO-o2Ypw</td>
+      <td>afc-africa-food-concept-lyon</td>
+      <td>AFC Africa Food Concept</td>
+      <td>8</td>
+      <td>3.5</td>
+      <td>€€</td>
+      <td>45.754336</td>
+      <td>4.843469</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[data<span style="color:#000;font-weight:bold">.</span>columns[<span style="color:#099">8</span>:]]<span style="color:#000;font-weight:bold">.</span>head()
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>location.address1</th>
+      <th>location.address2</th>
+      <th>location.address3</th>
+      <th>location.zip_code</th>
+      <th>location.country</th>
+      <th>location.display_address</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>6 Rue Villeneuve</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>69004</td>
+      <td>FR</td>
+      <td>['6 Rue Villeneuve', '69004 Lyon', 'France']</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>25 Rue Tramassac</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>69005</td>
+      <td>FR</td>
+      <td>['25 Rue Tramassac', '69005 Lyon', 'France']</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>34 rue Jeanne Hachette</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>69003</td>
+      <td>FR</td>
+      <td>['34 rue Jeanne Hachette', '69003 Lyon', 'Fran...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>112 Grande rue de la Guillotière</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>69007</td>
+      <td>FR</td>
+      <td>['112 Grande rue de la Guillotière', '69007 Ly...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>14 Grande rue de la Guillotière</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>69007</td>
+      <td>FR</td>
+      <td>['14 Grande rue de la Guillotière', '69007 Lyo...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+<h3 id="review-count-and-ratings-distribution">Review count and ratings distribution
+  <a href="#review-count-and-ratings-distribution"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h3>
+<p>Let&rsquo;s take a look at the review count and ratings distributions:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>sns<span style="color:#000;font-weight:bold">.</span>displot(data <span style="color:#000;font-weight:bold">=</span> data, x <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;review_count&#34;</span>, bins <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">50</span>);
+</span></span></code></pre></div><p><img src="output_5_0.png" alt="png"></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data[<span style="color:#d14">&#39;price_num&#39;</span>] <span style="color:#000;font-weight:bold">=</span> data[<span style="color:#d14">&#39;price&#39;</span>]<span style="color:#000;font-weight:bold">.</span>map({<span style="color:#d14">&#39;€&#39;</span>: <span style="color:#099">1</span>, <span style="color:#d14">&#39;€€&#39;</span>: <span style="color:#099">2</span>, <span style="color:#d14">&#39;€€€&#39;</span>: <span style="color:#099">3</span>, <span style="color:#d14">&#39;€€€€&#39;</span>: <span style="color:#099">4</span>})
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>sns<span style="color:#000;font-weight:bold">.</span>countplot(data <span style="color:#000;font-weight:bold">=</span> data, x <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;rating&#34;</span>);
+</span></span></code></pre></div><p><img src="output_7_0.png" alt="png"></p>
+<p>The ratings are strongly bimodal, with the bulk of the distribution centered around 4 but also numerous restaurants rated 0 stars.
+The review counts are exponentially distributed, meaning that a large part of the restaurants have very few reviews.
+Because ratings with few reviews might not be very informative, let&rsquo;s get rid of all restaurants with less than 10 reviews:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>data <span style="color:#000;font-weight:bold">=</span> data[data[<span style="color:#d14">&#39;review_count&#39;</span>] <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#099">10</span>]
+</span></span><span style="display:flex;"><span>sns<span style="color:#000;font-weight:bold">.</span>countplot(data <span style="color:#000;font-weight:bold">=</span> data, x <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;rating&#34;</span>);
+</span></span></code></pre></div><p><img src="output_9_0.png" alt="png"></p>
+<p>Interestingly, all ratings of 0 or 1 star only applied to restaurants with few ratings, so we now have an unimodal ratings&rsquo; distribution.</p>
+
+
+
+
+<h3 id="restaurants-properties-by-districts">Restaurants properties by districts
+  <a href="#restaurants-properties-by-districts"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h3>
+<p>Let&rsquo;s now take a look at how variables of interest differ between districts.
+Using geopandas, I&rsquo;ll look at the number of restaurants, mean rating, mean price and median number of reviews by district.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># importing spatial libraries</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">geopandas</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">geodatasets</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">import</span> <span style="color:#555">contextily</span> <span style="color:#000;font-weight:bold">as</span> <span style="color:#555">cx</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">from</span> <span style="color:#555">shapely.geometry</span> <span style="color:#000;font-weight:bold">import</span> Point
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># importing a geojson file describing the cities district as a geo-dataframe called &#39;lyon_map&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># obtained from https://data.grandlyon.com/jeux-de-donnees/arrondissements-lyon/info</span>
+</span></span><span style="display:flex;"><span>lyon_map <span style="color:#000;font-weight:bold">=</span> geopandas<span style="color:#000;font-weight:bold">.</span>read_file(<span style="color:#d14">&#39;data/adr_voie_lieu.adrarrond.geojson&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># adding zip codes to be able to merge with the data</span>
+</span></span><span style="display:flex;"><span>lyon_map[<span style="color:#d14">&#39;location.zip_code&#39;</span>] <span style="color:#000;font-weight:bold">=</span> lyon_map[<span style="color:#d14">&#39;nomreduit&#39;</span>]<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x:(<span style="color:#d14">&#39;6900&#39;</span> <span style="color:#000;font-weight:bold">+</span> x[<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>]))<span style="color:#000;font-weight:bold">.</span>astype(<span style="color:#d14">&#39;int&#39;</span>)
+</span></span><span style="display:flex;"><span>lyon_map
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nom</th>
+      <th>nomreduit</th>
+      <th>insee</th>
+      <th>datemaj</th>
+      <th>trigramme</th>
+      <th>gid</th>
+      <th>geometry</th>
+      <th>location.zip_code</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Lyon 1er Arrondissement</td>
+      <td>Lyon 1</td>
+      <td>69381</td>
+      <td>1997-10-22 00:00:00+00:00</td>
+      <td>LY1</td>
+      <td>128</td>
+      <td>POLYGON ((4.83049 45.76454, 4.83125 45.76484, ...</td>
+      <td>69001</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Lyon 9e Arrondissement</td>
+      <td>Lyon 9</td>
+      <td>69389</td>
+      <td>2005-07-19 00:00:00+00:00</td>
+      <td>LY9</td>
+      <td>181</td>
+      <td>POLYGON ((4.81088 45.78099, 4.81145 45.78177, ...</td>
+      <td>69009</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Lyon 2e Arrondissement</td>
+      <td>Lyon 2</td>
+      <td>69382</td>
+      <td>1997-10-22 00:00:00+00:00</td>
+      <td>LY2</td>
+      <td>59</td>
+      <td>POLYGON ((4.81782 45.72649, 4.81868 45.72660, ...</td>
+      <td>69002</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Lyon 4e Arrondissement</td>
+      <td>Lyon 4</td>
+      <td>69384</td>
+      <td>2003-05-12 00:00:00+00:00</td>
+      <td>LY4</td>
+      <td>29</td>
+      <td>POLYGON ((4.81856 45.78944, 4.81817 45.78914, ...</td>
+      <td>69004</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Lyon 3e Arrondissement</td>
+      <td>Lyon 3</td>
+      <td>69383</td>
+      <td>2005-07-19 00:00:00+00:00</td>
+      <td>LY3</td>
+      <td>125</td>
+      <td>POLYGON ((4.83901 45.75660, 4.83956 45.75643, ...</td>
+      <td>69003</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>Lyon 5e Arrondissement</td>
+      <td>Lyon 5</td>
+      <td>69385</td>
+      <td>2005-07-19 00:00:00+00:00</td>
+      <td>LY5</td>
+      <td>53</td>
+      <td>POLYGON ((4.81353 45.74819, 4.81357 45.74823, ...</td>
+      <td>69005</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>Lyon 7e Arrondissement</td>
+      <td>Lyon 7</td>
+      <td>69387</td>
+      <td>2000-03-30 00:00:00+00:00</td>
+      <td>LY7</td>
+      <td>189</td>
+      <td>POLYGON ((4.83770 45.70737, 4.83894 45.70763, ...</td>
+      <td>69007</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>Lyon 8e Arrondissement</td>
+      <td>Lyon 8</td>
+      <td>69388</td>
+      <td>2011-03-03 00:00:00+00:00</td>
+      <td>LY8</td>
+      <td>42</td>
+      <td>POLYGON ((4.84879 45.71885, 4.84881 45.71879, ...</td>
+      <td>69008</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>Lyon 6e Arrondissement</td>
+      <td>Lyon 6</td>
+      <td>69386</td>
+      <td>2005-07-19 00:00:00+00:00</td>
+      <td>LY6</td>
+      <td>45</td>
+      <td>POLYGON ((4.86994 45.76373, 4.86986 45.76384, ...</td>
+      <td>69006</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>To obtain data by district, I group the restaurant data by &rsquo;location.zip_code&rsquo; before merging it with the geodataframe &rsquo;lyon_map':</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># merging lyon_map with the data aggregated by zip code to get mean and median rating, price and review counts:</span>
+</span></span><span style="display:flex;"><span>lyon_map <span style="color:#000;font-weight:bold">=</span> lyon_map<span style="color:#000;font-weight:bold">.</span>merge(
+</span></span><span style="display:flex;"><span>                data<span style="color:#000;font-weight:bold">.</span>groupby(<span style="color:#d14">&#39;location.zip_code&#39;</span>)[[<span style="color:#d14">&#39;review_count&#39;</span>, <span style="color:#d14">&#39;rating&#39;</span>, <span style="color:#d14">&#39;price_num&#39;</span>]]<span style="color:#000;font-weight:bold">.</span>agg([np<span style="color:#000;font-weight:bold">.</span>mean, np<span style="color:#000;font-weight:bold">.</span>median]),
+</span></span><span style="display:flex;"><span>                on <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;location.zip_code&#39;</span>,
+</span></span><span style="display:flex;"><span>                how <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;left&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># merging lyon_map with the data aggregated by zip code to get the restaurant count by district:</span>
+</span></span><span style="display:flex;"><span>lyon_map <span style="color:#000;font-weight:bold">=</span> lyon_map<span style="color:#000;font-weight:bold">.</span>merge(
+</span></span><span style="display:flex;"><span>                data<span style="color:#000;font-weight:bold">.</span>groupby(<span style="color:#d14">&#39;location.zip_code&#39;</span>)[<span style="color:#d14">&#39;id&#39;</span>]<span style="color:#000;font-weight:bold">.</span>count()<span style="color:#000;font-weight:bold">.</span>reset_index(name<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#34;restaurants_count&#34;</span>),
+</span></span><span style="display:flex;"><span>                on <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;location.zip_code&#39;</span>,
+</span></span><span style="display:flex;"><span>                how <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;left&#39;</span>)
+</span></span></code></pre></div><p>I finally plot the variables of interest aggregated by district:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># changing the coordinates reference system to a more visually appealing one:</span>
+</span></span><span style="display:flex;"><span>lyon_map <span style="color:#000;font-weight:bold">=</span> lyon_map<span style="color:#000;font-weight:bold">.</span>to_crs(epsg <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">3857</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>fig, ax <span style="color:#000;font-weight:bold">=</span> plt<span style="color:#000;font-weight:bold">.</span>subplots(<span style="color:#099">2</span>, <span style="color:#099">2</span>, figsize <span style="color:#000;font-weight:bold">=</span> (<span style="color:#099">15</span>, <span style="color:#099">12</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># plotting number of restaurants</span>
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>plot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">0</span>, <span style="color:#099">0</span>], alpha <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0.5</span>, edgecolor <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;k&#34;</span>, column <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;restaurants_count&#39;</span>, legend <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: ax[<span style="color:#099">0</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>annotate(text<span style="color:#000;font-weight:bold">=</span>x[<span style="color:#d14">&#39;location.zip_code&#39;</span>],
+</span></span><span style="display:flex;"><span>                                     xy<span style="color:#000;font-weight:bold">=</span>x<span style="color:#000;font-weight:bold">.</span>geometry<span style="color:#000;font-weight:bold">.</span>centroid<span style="color:#000;font-weight:bold">.</span>coords[<span style="color:#099">0</span>],
+</span></span><span style="display:flex;"><span>                                     ha<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;center&#39;</span>), axis<span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span>)
+</span></span><span style="display:flex;"><span>cx<span style="color:#000;font-weight:bold">.</span>add_basemap(ax[<span style="color:#099">0</span>, <span style="color:#099">0</span>], zoom <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">12</span>, source <span style="color:#000;font-weight:bold">=</span> cx<span style="color:#000;font-weight:bold">.</span>providers<span style="color:#000;font-weight:bold">.</span>Esri<span style="color:#000;font-weight:bold">.</span>WorldGrayCanvas)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">0</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>set_title(<span style="color:#d14">&#39;Number of restaurants&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># plotting mean rating</span>
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>plot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">0</span>, <span style="color:#099">1</span>],alpha <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0.5</span>, edgecolor <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;k&#34;</span>,
+</span></span><span style="display:flex;"><span>                   column <span style="color:#000;font-weight:bold">=</span> (<span style="color:#d14">&#39;rating&#39;</span>, <span style="color:#d14">&#39;mean&#39;</span>), legend <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: ax[<span style="color:#099">0</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>annotate(text<span style="color:#000;font-weight:bold">=</span>x[<span style="color:#d14">&#39;location.zip_code&#39;</span>],
+</span></span><span style="display:flex;"><span>                                     xy<span style="color:#000;font-weight:bold">=</span>x<span style="color:#000;font-weight:bold">.</span>geometry<span style="color:#000;font-weight:bold">.</span>centroid<span style="color:#000;font-weight:bold">.</span>coords[<span style="color:#099">0</span>],
+</span></span><span style="display:flex;"><span>                                     ha<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;center&#39;</span>), axis<span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span>)
+</span></span><span style="display:flex;"><span>cx<span style="color:#000;font-weight:bold">.</span>add_basemap(ax[<span style="color:#099">0</span>, <span style="color:#099">1</span>], zoom <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">12</span>, source <span style="color:#000;font-weight:bold">=</span> cx<span style="color:#000;font-weight:bold">.</span>providers<span style="color:#000;font-weight:bold">.</span>Esri<span style="color:#000;font-weight:bold">.</span>WorldGrayCanvas)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">0</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>set_title(<span style="color:#d14">&#39;Mean rating&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># plotting median review count</span>
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>plot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">1</span>, <span style="color:#099">0</span>], alpha <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0.5</span>, edgecolor <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;k&#34;</span>, column <span style="color:#000;font-weight:bold">=</span> (<span style="color:#d14">&#39;review_count&#39;</span>, <span style="color:#d14">&#39;median&#39;</span>), legend <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: ax[<span style="color:#099">1</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>annotate(text<span style="color:#000;font-weight:bold">=</span>x[<span style="color:#d14">&#39;location.zip_code&#39;</span>],
+</span></span><span style="display:flex;"><span>                                     xy<span style="color:#000;font-weight:bold">=</span>x<span style="color:#000;font-weight:bold">.</span>geometry<span style="color:#000;font-weight:bold">.</span>centroid<span style="color:#000;font-weight:bold">.</span>coords[<span style="color:#099">0</span>],
+</span></span><span style="display:flex;"><span>                                     ha<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;center&#39;</span>), axis<span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span>)
+</span></span><span style="display:flex;"><span>cx<span style="color:#000;font-weight:bold">.</span>add_basemap(ax[<span style="color:#099">1</span>, <span style="color:#099">0</span>], zoom <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">12</span>, source <span style="color:#000;font-weight:bold">=</span> cx<span style="color:#000;font-weight:bold">.</span>providers<span style="color:#000;font-weight:bold">.</span>Esri<span style="color:#000;font-weight:bold">.</span>WorldGrayCanvas)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">1</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>set_title(<span style="color:#d14">&#39;Median number of reviews&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># plotting mean price</span>
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>plot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">1</span>, <span style="color:#099">1</span>], alpha <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">0.5</span>, edgecolor <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;k&#34;</span>, column <span style="color:#000;font-weight:bold">=</span> (<span style="color:#d14">&#39;price_num&#39;</span>, <span style="color:#d14">&#39;mean&#39;</span>), legend <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span><span style="display:flex;"><span>lyon_map<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: ax[<span style="color:#099">1</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>annotate(text<span style="color:#000;font-weight:bold">=</span>x[<span style="color:#d14">&#39;location.zip_code&#39;</span>],
+</span></span><span style="display:flex;"><span>                                     xy<span style="color:#000;font-weight:bold">=</span>x<span style="color:#000;font-weight:bold">.</span>geometry<span style="color:#000;font-weight:bold">.</span>centroid<span style="color:#000;font-weight:bold">.</span>coords[<span style="color:#099">0</span>],
+</span></span><span style="display:flex;"><span>                                     ha<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;center&#39;</span>), axis<span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span>)
+</span></span><span style="display:flex;"><span>cx<span style="color:#000;font-weight:bold">.</span>add_basemap(ax[<span style="color:#099">1</span>, <span style="color:#099">1</span>], zoom <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">12</span>, source <span style="color:#000;font-weight:bold">=</span> cx<span style="color:#000;font-weight:bold">.</span>providers<span style="color:#000;font-weight:bold">.</span>Esri<span style="color:#000;font-weight:bold">.</span>WorldGrayCanvas)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">1</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>set_title(<span style="color:#d14">&#39;Mean price&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># removing ticks for better visibility</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">for</span> k <span style="color:#000;font-weight:bold">in</span> [<span style="color:#099">0</span>, <span style="color:#099">1</span>]:
+</span></span><span style="display:flex;"><span>    <span style="color:#000;font-weight:bold">for</span> l <span style="color:#000;font-weight:bold">in</span> [<span style="color:#099">0</span>, <span style="color:#099">1</span>]:
+</span></span><span style="display:flex;"><span>        ax[k, l]<span style="color:#000;font-weight:bold">.</span>set_xticks([])
+</span></span><span style="display:flex;"><span>        ax[l, k]<span style="color:#000;font-weight:bold">.</span>set_yticks([])
+</span></span><span style="display:flex;"><span>        
+</span></span><span style="display:flex;"><span>fig<span style="color:#000;font-weight:bold">.</span>tight_layout()
+</span></span></code></pre></div><p><img src="output_16_0.png" alt="png"></p>
+<ul>
+<li>The historical center (Lyon 1 and 2) has the most restaurants, as well as the most reviews, which makes sense given its touristic appeal.</li>
+<li>Restaurants in fancy neighborhoods (Lyon 5 and 6) are the most expensive on average, but this is not reflected by higher ratings.</li>
+<li>Restaurants have better ratings on average in Lyon 7, but this effect is rather small.</li>
+</ul>
+
+
+
+
+<h3 id="restaurants-properties-by-category">Restaurants properties by category
+  <a href="#restaurants-properties-by-category"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h3>
+<p>Let us now take a look at how categories affect the restaurant properties.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># Loading the dataframe of categories</span>
+</span></span><span style="display:flex;"><span>categories_df <span style="color:#000;font-weight:bold">=</span> pd<span style="color:#000;font-weight:bold">.</span>read_csv(<span style="color:#d14">&#39;data/categories.csv&#39;</span>)
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># taking a look at the distribution of the number of restaurant by category.</span>
+</span></span><span style="display:flex;"><span>ax <span style="color:#000;font-weight:bold">=</span> sns<span style="color:#000;font-weight:bold">.</span>histplot(categories_df<span style="color:#000;font-weight:bold">.</span>drop(<span style="color:#d14">&#39;id&#39;</span>, axis <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>)<span style="color:#000;font-weight:bold">.</span>sum())
+</span></span><span style="display:flex;"><span>ax<span style="color:#000;font-weight:bold">.</span>set_xlabel(<span style="color:#d14">&#39;Number of restaurants&#39;</span>);
+</span></span></code></pre></div><p><img src="output_19_0.png" alt="png"></p>
+<p>Most categories contain very few restaurants, and are therefore not very informative. For the remainder of the analysis, I chose to keep only the most frequent categories.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic">## dropping all categories concerning less than 100 restaurants</span>
+</span></span><span style="display:flex;"><span>sorted_categories <span style="color:#000;font-weight:bold">=</span> categories_df<span style="color:#000;font-weight:bold">.</span>drop(<span style="color:#d14">&#39;id&#39;</span>, axis <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>)<span style="color:#000;font-weight:bold">.</span>sum()<span style="color:#000;font-weight:bold">.</span>sort_values(ascending <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">False</span>)
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># saving a vector of the top categories</span>
+</span></span><span style="display:flex;"><span>top_categories <span style="color:#000;font-weight:bold">=</span> sorted_categories[sorted_categories <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#099">100</span>]
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># and a vector of all other categories to filter categories_df</span>
+</span></span><span style="display:flex;"><span>non_top_categories <span style="color:#000;font-weight:bold">=</span> sorted_categories[sorted_categories <span style="color:#000;font-weight:bold">&lt;</span> <span style="color:#099">100</span>]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># dropping rare categories</span>
+</span></span><span style="display:flex;"><span>categories_df<span style="color:#000;font-weight:bold">.</span>drop(non_top_categories<span style="color:#000;font-weight:bold">.</span>index, axis <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>, inplace <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span></code></pre></div><p>To check how our variables of interest depend on categories, I create a dataframe of with the name of the most common categories, and then compute the restaurant count, mean rating and price and median review count for each category.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># creating a dataframe of the most frequent categories (&#39;alias&#39;) and the number of categories for each (&#39;count&#39;)</span>
+</span></span><span style="display:flex;"><span>top_categories <span style="color:#000;font-weight:bold">=</span> pd<span style="color:#000;font-weight:bold">.</span>DataFrame(top_categories)
+</span></span><span style="display:flex;"><span>top_categories<span style="color:#000;font-weight:bold">.</span>reset_index(inplace <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span><span style="display:flex;"><span>top_categories<span style="color:#000;font-weight:bold">.</span>columns <span style="color:#000;font-weight:bold">=</span> [<span style="color:#d14">&#39;alias&#39;</span>, <span style="color:#d14">&#39;count&#39;</span>]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># computing the mean rating by category</span>
+</span></span><span style="display:flex;"><span>top_categories[<span style="color:#d14">&#34;mean_rating&#34;</span>] <span style="color:#000;font-weight:bold">=</span> top_categories[<span style="color:#d14">&#39;alias&#39;</span>]<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: data[<span style="color:#d14">&#39;rating&#39;</span>][categories_df[x] <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>mean())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># computing the median number of reviews</span>
+</span></span><span style="display:flex;"><span>top_categories[<span style="color:#d14">&#34;median_reviews&#34;</span>] <span style="color:#000;font-weight:bold">=</span> top_categories[<span style="color:#d14">&#39;alias&#39;</span>]<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: data[<span style="color:#d14">&#39;review_count&#39;</span>][categories_df[x] <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>median())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># computing the mean price</span>
+</span></span><span style="display:flex;"><span>top_categories[<span style="color:#d14">&#34;mean_price&#34;</span>] <span style="color:#000;font-weight:bold">=</span> top_categories[<span style="color:#d14">&#39;alias&#39;</span>]<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: data[<span style="color:#d14">&#39;price_num&#39;</span>][categories_df[x] <span style="color:#000;font-weight:bold">&gt;</span> <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>mean())
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># taking a look at the resulting dataset:</span>
+</span></span><span style="display:flex;"><span>top_categories
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>alias</th>
+      <th>count</th>
+      <th>mean_rating</th>
+      <th>median_reviews</th>
+      <th>mean_price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>french</td>
+      <td>730.0</td>
+      <td>3.747368</td>
+      <td>30.0</td>
+      <td>2.553571</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>hotdogs</td>
+      <td>308.0</td>
+      <td>3.366667</td>
+      <td>19.0</td>
+      <td>1.750000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>pizza</td>
+      <td>255.0</td>
+      <td>3.561404</td>
+      <td>20.0</td>
+      <td>2.017544</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>italian</td>
+      <td>174.0</td>
+      <td>3.571429</td>
+      <td>20.5</td>
+      <td>2.115942</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>sandwiches</td>
+      <td>164.0</td>
+      <td>3.557692</td>
+      <td>20.0</td>
+      <td>1.576923</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>cafes</td>
+      <td>159.0</td>
+      <td>3.833333</td>
+      <td>30.0</td>
+      <td>1.974359</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>bistros</td>
+      <td>139.0</td>
+      <td>3.957143</td>
+      <td>24.0</td>
+      <td>2.314286</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>brasseries</td>
+      <td>134.0</td>
+      <td>3.346154</td>
+      <td>28.0</td>
+      <td>2.435897</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>burgers</td>
+      <td>123.0</td>
+      <td>3.337209</td>
+      <td>34.0</td>
+      <td>1.906977</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>japanese</td>
+      <td>113.0</td>
+      <td>3.661017</td>
+      <td>31.0</td>
+      <td>2.237288</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>lyonnais</td>
+      <td>100.0</td>
+      <td>3.701613</td>
+      <td>40.0</td>
+      <td>2.677419</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>Finally, let&rsquo;s take a look at the differences between categories in the form of bar charts:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>fig, ax <span style="color:#000;font-weight:bold">=</span> plt<span style="color:#000;font-weight:bold">.</span>subplots(<span style="color:#099">2</span>, <span style="color:#099">2</span>, figsize <span style="color:#000;font-weight:bold">=</span> (<span style="color:#099">12</span>, <span style="color:#099">12</span>))
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sns<span style="color:#000;font-weight:bold">.</span>barplot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">0</span>, <span style="color:#099">0</span>], data <span style="color:#000;font-weight:bold">=</span> top_categories, x <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;count&#39;</span>, y <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;alias&#39;</span>)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">0</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>set_xlabel(<span style="color:#d14">&#39;Number of restaurants&#39;</span>)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">0</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>set_ylabel(<span style="color:#d14">&#39;Category&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sns<span style="color:#000;font-weight:bold">.</span>barplot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">0</span>, <span style="color:#099">1</span>], data <span style="color:#000;font-weight:bold">=</span> top_categories, x <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;mean_rating&#39;</span>, y <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;alias&#39;</span>,
+</span></span><span style="display:flex;"><span>            order <span style="color:#000;font-weight:bold">=</span> top_categories<span style="color:#000;font-weight:bold">.</span>sort_values(<span style="color:#d14">&#39;mean_rating&#39;</span>, ascending <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">False</span>)<span style="color:#000;font-weight:bold">.</span>alias)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">0</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>set_xlabel(<span style="color:#d14">&#39;Mean rating&#39;</span>)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">0</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>set_ylabel(<span style="color:#d14">&#39;Category&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sns<span style="color:#000;font-weight:bold">.</span>barplot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">1</span>, <span style="color:#099">0</span>], data <span style="color:#000;font-weight:bold">=</span> top_categories, x <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;median_reviews&#39;</span>, y <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;alias&#39;</span>,
+</span></span><span style="display:flex;"><span>            order <span style="color:#000;font-weight:bold">=</span> top_categories<span style="color:#000;font-weight:bold">.</span>sort_values(<span style="color:#d14">&#39;median_reviews&#39;</span>, ascending <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">False</span>)<span style="color:#000;font-weight:bold">.</span>alias)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">1</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>set_xlabel(<span style="color:#d14">&#39;Median number of reviews&#39;</span>)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">1</span>, <span style="color:#099">0</span>]<span style="color:#000;font-weight:bold">.</span>set_ylabel(<span style="color:#d14">&#39;Category&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>sns<span style="color:#000;font-weight:bold">.</span>barplot(ax <span style="color:#000;font-weight:bold">=</span> ax[<span style="color:#099">1</span>, <span style="color:#099">1</span>], data <span style="color:#000;font-weight:bold">=</span> top_categories, x <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;mean_price&#39;</span>, y <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;alias&#39;</span>,
+</span></span><span style="display:flex;"><span>            order <span style="color:#000;font-weight:bold">=</span> top_categories<span style="color:#000;font-weight:bold">.</span>sort_values(<span style="color:#d14">&#39;mean_price&#39;</span>, ascending <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">False</span>)<span style="color:#000;font-weight:bold">.</span>alias)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">1</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>set_xlabel(<span style="color:#d14">&#39;Mean price&#39;</span>)
+</span></span><span style="display:flex;"><span>ax[<span style="color:#099">1</span>, <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>set_ylabel(<span style="color:#d14">&#39;Category&#39;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>fig<span style="color:#000;font-weight:bold">.</span>tight_layout();
+</span></span></code></pre></div><p><img src="output_27_0.png" alt="png"></p>
+
+
+
+
+<h2 id="finding-the-best-pizza-in-town">Finding the best pizza in town
+  <a href="#finding-the-best-pizza-in-town"><svg class="anchor-symbol" aria-hidden="true" height="26" width="26" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 0h24v24H0z" fill="currentColor"></path>
+      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76.0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71.0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71.0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76.0 5-2.24 5-5s-2.24-5-5-5z"></path>
+    </svg></a>
+</h2>
+<p>I now want to identify “good” restaurants, <em>i.e.</em>, restaurants that are better rated than similar restaurants. To do so, let us fit a simple linear model that predicts rating from the zip code, categories, and price of a restaurant.
+Such a simple model will of course be fairly bad at predicting the rating of any individual restaurant, but its category, and price.
+The residuals of the model (the difference between the true rating and predicted rating) will then give us a good understanding of how well a restaurant performs compared to other restaurants with similar properties.</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># building and fitting a simple linear regression model to predict the rating</span>
+</span></span><span style="display:flex;"><span><span style="color:#000;font-weight:bold">from</span> <span style="color:#555">sklearn.linear_model</span> <span style="color:#000;font-weight:bold">import</span> LinearRegression
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># ratings as the target variable</span>
+</span></span><span style="display:flex;"><span>y <span style="color:#000;font-weight:bold">=</span> data[<span style="color:#d14">&#39;rating&#39;</span>]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># keeping zip code, price, and categories as predictor variables</span>
+</span></span><span style="display:flex;"><span>X <span style="color:#000;font-weight:bold">=</span> data[[<span style="color:#d14">&#39;id&#39;</span>, <span style="color:#d14">&#39;location.zip_code&#39;</span>]]<span style="color:#000;font-weight:bold">.</span>merge(categories_df, how <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;left&#39;</span>, on <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;id&#39;</span>)
+</span></span><span style="display:flex;"><span>X <span style="color:#000;font-weight:bold">=</span> pd<span style="color:#000;font-weight:bold">.</span>concat([X, pd<span style="color:#000;font-weight:bold">.</span>get_dummies(data[<span style="color:#d14">&#39;price&#39;</span>])<span style="color:#000;font-weight:bold">.</span>reset_index()], axis <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>)<span style="color:#000;font-weight:bold">.</span>drop([<span style="color:#d14">&#39;id&#39;</span>, <span style="color:#d14">&#39;index&#39;</span>], axis <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">1</span>)
+</span></span><span style="display:flex;"><span>X <span style="color:#000;font-weight:bold">=</span> X<span style="color:#000;font-weight:bold">.</span>values
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># initializing and fitting the model</span>
+</span></span><span style="display:flex;"><span>lm <span style="color:#000;font-weight:bold">=</span> LinearRegression()
+</span></span><span style="display:flex;"><span>lm<span style="color:#000;font-weight:bold">.</span>fit(X, y);
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># getting predictions</span>
+</span></span><span style="display:flex;"><span>data[<span style="color:#d14">&#39;predicted_rating&#39;</span>] <span style="color:#000;font-weight:bold">=</span> lm<span style="color:#000;font-weight:bold">.</span>predict(X)
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># computing the residuals</span>
+</span></span><span style="display:flex;"><span>data[<span style="color:#d14">&#39;residual&#39;</span>] <span style="color:#000;font-weight:bold">=</span> data[<span style="color:#d14">&#39;rating&#39;</span>] <span style="color:#000;font-weight:bold">-</span> data[<span style="color:#d14">&#39;predicted_rating&#39;</span>]
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#998;font-style:italic"># creating a data frame of the pizzerias with the highest residuals in each zip code</span>
+</span></span><span style="display:flex;"><span>best_pizza <span style="color:#000;font-weight:bold">=</span> data<span style="color:#000;font-weight:bold">.</span>loc[data[categories_df[<span style="color:#d14">&#34;pizza&#34;</span>] <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">1</span>]<span style="color:#000;font-weight:bold">.</span>groupby(<span style="color:#d14">&#39;location.zip_code&#39;</span>)[<span style="color:#d14">&#39;residual&#39;</span>]<span style="color:#000;font-weight:bold">.</span>idxmax()]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#998;font-style:italic"># taking a quick look at the selected pizzas:</span>
+</span></span><span style="display:flex;"><span>best_pizza[[<span style="color:#d14">&#39;name&#39;</span>, <span style="color:#d14">&#39;rating&#39;</span>, <span style="color:#d14">&#39;price&#39;</span>, <span style="color:#d14">&#34;location.zip_code&#34;</span>, <span style="color:#d14">&#39;residual&#39;</span>]]
+</span></span></code></pre></div><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+<pre><code>.dataframe tbody tr th {
+    vertical-align: top;
+}
+
+.dataframe thead th {
+    text-align: right;
+}
+</code></pre>
+<p></style></p>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>rating</th>
+      <th>price</th>
+      <th>location.zip_code</th>
+      <th>residual</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2262</th>
+      <td>Le Jardin des Pentes</td>
+      <td>4.0</td>
+      <td>€</td>
+      <td>69001</td>
+      <td>0.447680</td>
+    </tr>
+    <tr>
+      <th>1773</th>
+      <td>Casa Nobile</td>
+      <td>4.5</td>
+      <td>€€</td>
+      <td>69002</td>
+      <td>0.987304</td>
+    </tr>
+    <tr>
+      <th>1823</th>
+      <td>Le Ferrari</td>
+      <td>4.5</td>
+      <td>€€€</td>
+      <td>69003</td>
+      <td>0.957764</td>
+    </tr>
+    <tr>
+      <th>2274</th>
+      <td>Chez Puce</td>
+      <td>4.5</td>
+      <td>€€</td>
+      <td>69004</td>
+      <td>0.882967</td>
+    </tr>
+    <tr>
+      <th>1804</th>
+      <td>Al Dente</td>
+      <td>4.0</td>
+      <td>€€</td>
+      <td>69005</td>
+      <td>0.463095</td>
+    </tr>
+    <tr>
+      <th>1786</th>
+      <td>Neroliva</td>
+      <td>4.5</td>
+      <td>€€</td>
+      <td>69006</td>
+      <td>0.955026</td>
+    </tr>
+    <tr>
+      <th>1790</th>
+      <td>Le Vivaldi - Nicolo e Maria</td>
+      <td>4.5</td>
+      <td>€€</td>
+      <td>69007</td>
+      <td>0.946956</td>
+    </tr>
+    <tr>
+      <th>2282</th>
+      <td>Pizza Lina</td>
+      <td>4.0</td>
+      <td>€€</td>
+      <td>69008</td>
+      <td>0.350689</td>
+    </tr>
+    <tr>
+      <th>1808</th>
+      <td>Domeva Caffé</td>
+      <td>4.5</td>
+      <td>€€</td>
+      <td>69009</td>
+      <td>0.930817</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>Finally, we can plot the selected pizzerias on a map:</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>best_pizza <span style="color:#000;font-weight:bold">=</span> geopandas<span style="color:#000;font-weight:bold">.</span>GeoDataFrame(
+</span></span><span style="display:flex;"><span>    best_pizza,
+</span></span><span style="display:flex;"><span>    geometry <span style="color:#000;font-weight:bold">=</span> geopandas<span style="color:#000;font-weight:bold">.</span>points_from_xy(best_pizza[<span style="color:#d14">&#39;coordinates.longitude&#39;</span>], best_pizza[<span style="color:#d14">&#39;coordinates.latitude&#39;</span>],
+</span></span><span style="display:flex;"><span>    crs <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;EPSG:4326&#39;</span>)
+</span></span><span style="display:flex;"><span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>best_pizza<span style="color:#000;font-weight:bold">.</span>to_crs(<span style="color:#0086b3">str</span>(lyon_map<span style="color:#000;font-weight:bold">.</span>crs), inplace <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">True</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>ax <span style="color:#000;font-weight:bold">=</span> lyon_map<span style="color:#000;font-weight:bold">.</span>plot(edgecolor <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;teal&#34;</span>, facecolor <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;none&#39;</span>, figsize<span style="color:#000;font-weight:bold">=</span>(<span style="color:#099">15</span>, <span style="color:#099">15</span>), linewidth<span style="color:#000;font-weight:bold">=</span><span style="color:#099">2</span>)
+</span></span><span style="display:flex;"><span>best_pizza<span style="color:#000;font-weight:bold">.</span>plot(ax <span style="color:#000;font-weight:bold">=</span> ax)
+</span></span><span style="display:flex;"><span>best_pizza<span style="color:#000;font-weight:bold">.</span>apply(<span style="color:#000;font-weight:bold">lambda</span> x: ax<span style="color:#000;font-weight:bold">.</span>annotate(text<span style="color:#000;font-weight:bold">=</span>x[<span style="color:#d14">&#39;name&#39;</span>],
+</span></span><span style="display:flex;"><span>                                     xy<span style="color:#000;font-weight:bold">=</span>x<span style="color:#000;font-weight:bold">.</span>geometry<span style="color:#000;font-weight:bold">.</span>centroid<span style="color:#000;font-weight:bold">.</span>coords[<span style="color:#099">0</span>],
+</span></span><span style="display:flex;"><span>                                     ha<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;center&#39;</span>,
+</span></span><span style="display:flex;"><span>                                     xytext<span style="color:#000;font-weight:bold">=</span>(<span style="color:#000;font-weight:bold">-</span><span style="color:#099">5</span>, <span style="color:#000;font-weight:bold">-</span><span style="color:#099">15</span>) <span style="color:#000;font-weight:bold">if</span> x[<span style="color:#d14">&#39;location.zip_code&#39;</span>] <span style="color:#000;font-weight:bold">in</span> [<span style="color:#099">69005</span>, <span style="color:#099">69007</span>] <span style="color:#000;font-weight:bold">else</span> (<span style="color:#000;font-weight:bold">-</span><span style="color:#099">5</span>, <span style="color:#099">20</span>),
+</span></span><span style="display:flex;"><span>                                     textcoords<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#34;offset points&#34;</span>,
+</span></span><span style="display:flex;"><span>                                     weight <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;bold&#39;</span>,
+</span></span><span style="display:flex;"><span>                                     fontsize <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">12</span>,
+</span></span><span style="display:flex;"><span>                                     backgroundcolor<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#39;1&#39;</span>), axis<span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>cx<span style="color:#000;font-weight:bold">.</span>add_basemap(ax, zoom <span style="color:#000;font-weight:bold">=</span> <span style="color:#099">13</span>, crs <span style="color:#000;font-weight:bold">=</span> best_pizza<span style="color:#000;font-weight:bold">.</span>crs,
+</span></span><span style="display:flex;"><span>               source <span style="color:#000;font-weight:bold">=</span> cx<span style="color:#000;font-weight:bold">.</span>providers<span style="color:#000;font-weight:bold">.</span>Esri<span style="color:#000;font-weight:bold">.</span>WorldTopoMap);
+</span></span></code></pre></div><p><img src="output_33_0.png" alt="png"></p>
+
+        
+        <details closed class="f6 fw7 input-reset">
+  <dl class="f6 lh-copy">
+    <dt class="fw7">Posted on:</dt>
+    <dd class="fw5 ml0">June 10, 2022</dd>
+  </dl>
+  <dl class="f6 lh-copy">
+    <dt class="fw7">Length:</dt>
+    <dd class="fw5 ml0">9 minute read, 1909 words</dd>
+  </dl>
+  
+  
+  
+  <dl class="f6 lh-copy">
+    <dt class="fw7">See Also:</dt>
+    
+  </dl>
+</details>
+
+      </section>
+      <footer class="post-footer">
+        <div class="post-pagination dt w-100 mt4 mb2">
+  
+  
+    <a class="prev dtc pr2 tl v-top fw6"
+    href="https://c-saade.github.io/projects/species_id/">&larr; Automated species identification with python</a>
+  
+  
+  
+    <a class="next dtc pl2 tr v-top fw6"
+    href="https://c-saade.github.io/projects/yelp_api_gathering/">Eating out in Lyon - Data gathering &rarr;</a>
+  
+</div>
+
+      </footer>
+    </article>
+    
+  </section>
+</main>
+<footer class="site-footer pv4 bt b--transparent ph5" role="contentinfo">
+  <nav class="db dt-l w-100">
+    <p class="site-copyright f7 db dtc-l v-mid w-100 w-33-l tc tl-l pv2 pv0-l mv0 lh-copy">
+      &copy; 2023 Camille Saade
+      <span class="middot-divider"></span>
+      Made with <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title"><a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/hugo-apero/" rel="dct:source">Hugo Apéro</a></span>.
+      <br />
+      
+Based on <span xmlns:dct="http://purl.org/dc/terms/" property="dct:title"><a xmlns:dct="http://purl.org/dc/terms/" href="https://github.com/formspree/blogophonic-hugo" rel="dct:source">Blogophonic</a></span> by <a xmlns:cc="http://creativecommons.org/ns#" href="https://formspree.io" property="cc:attributionName" rel="cc:attributionURL">Formspree</a>.
+    </p>
+    
+    <div class="site-social-links db dtc-l v-mid w-100 w-33-l tc pv2 pv0-l mv0">
+      <div class="social-icon-links" aria-hidden="true">
+  
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <a class="link dib h1 w1 ml0 mr2 f6 o-90 glow" href="https://www.linkedin.com/in/camille-saade-a21800231/" title="linkedin" target="_blank" rel="me noopener">
+      <i class="fab fa-linkedin fa-lg fa-fw"></i>
+    </a>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <a class="link dib h1 w1 ml0 mr2 f6 o-90 glow" href="https://github.com/c-saade/" title="github" target="_blank" rel="me noopener">
+      <i class="fab fa-github fa-lg fa-fw"></i>
+    </a>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <a class="link dib h1 w1 ml0 mr2 f6 o-90 glow" href="https://orcid.org/0000-0003-2368-9480" title="orcid" target="_blank" rel="me noopener">
+      <i class="ai ai-orcid fa-lg fa-fw"></i>
+    </a>
+  
+</div>
+
+    </div>
+    
+    <div class="site-links f6 db dtc-l v-mid w-100 w-67-l tc tr-l pv2 pv0-l mv0">
+      
+    </div>
+  </nav>
+  
+    <script>
+
+    var i, text, code, codes = document.getElementsByTagName('code');
+    for (let i = 0; i < codes.length;) {
+      code = codes[i];
+      if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+        text = code.textContent;
+        if (/^\$[^$]/.test(text) && /[^$]\$$/.test(text)) {
+          text = text.replace(/^\$/, '\\(').replace(/\$$/, '\\)');
+          code.textContent = text;
+        }
+        if (/^\\\((.|\s)+\\\)$/.test(text) ||
+            /^\\\[(.|\s)+\\\]$/.test(text) ||
+            /^\$(.|\s)+\$$/.test(text) ||
+            /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+          code.outerHTML = code.innerHTML;  
+          continue;
+        }
+      }
+      i++;
+    }
+</script>
+
+  
+    
+    
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.css" integrity="sha384-RZU/ijkSsFbcmivfdRBQDtwuwVqK7GMOw6IMvKyeWL2K5UAlyp6WonmB8m7Jd0Hn" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/katex.min.js" integrity="sha384-pK1WpvzWVBQiP0/GjnvRxV4mOb0oxFuyRxJlk6vVw146n3egcN5C925NCP7a7BY8" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.13.13/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script>
+
+
+
+    
+  
+  
+</footer>
+
+      </div>
+    </body>
+</html>

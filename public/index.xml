@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Camille Saade</title>
+    <link>https://c-saade.github.io/</link>
+    <description>Recent content on Camille Saade</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 06 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://c-saade.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Automated species identification with python</title>
+      <link>https://c-saade.github.io/projects/species_id/</link>
+      <pubDate>Wed, 06 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://c-saade.github.io/projects/species_id/</guid>
+      <description>Introduction Working on ecosystem stability, my PhD led me to follow the dynamics of microcosms &amp;ndash; artificial, simplified ecosystem made of vials and tubes and inhabited by different species of unicellular organisms. This entailed identifying and counting hundreds of thousands of individuals in more than 250 vials at regular intervals over the course of a month.
+Thankfully, automation of the identification process allowed me to realize this otherwise daunting task.</description>
+    </item>
+    
+    <item>
+      <title>Eating out in Lyon - Data analysis</title>
+      <link>https://c-saade.github.io/projects/yelp_api_analysis/</link>
+      <pubDate>Fri, 10 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://c-saade.github.io/projects/yelp_api_analysis/</guid>
+      <description>Summary This is the second part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon. After gathering and cleaning data in the first part, I now focus on data analysis. In the exploratory data analysis, I focus mainly on the mean price and ratings of restaurants across city districts and restaurant categories. I then go looking for outstanding restaurants — i.e., restaurants with a higher rating than restaurants of the same category and district — using the residuals of a linear model.</description>
+    </item>
+    
+    <item>
+      <title>Eating out in Lyon - Data gathering</title>
+      <link>https://c-saade.github.io/projects/yelp_api_gathering/</link>
+      <pubDate>Wed, 01 Jun 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://c-saade.github.io/projects/yelp_api_gathering/</guid>
+      <description>Summary This is the first part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon. Follow me as I:
+extract restaurant ratings using the yelp fusion API and the request package, transform the json response to a tidy dataframe, ensure the data integrity of variables of interest. # loading all necessary packages at once import requests import json import pandas as pd import numpy as np Gathering restaurant data from the yelp API The yelp API allows to get 50 results at a time up to the first 1000 results of a given query.</description>
+    </item>
+    
+  </channel>
+</rss>
