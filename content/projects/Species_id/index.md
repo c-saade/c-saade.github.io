@@ -9,6 +9,8 @@ cascade:
   featured_image: 'Colpidium-featured.jpg'
 ---
 
+*The code and data for this project is available on [github](https://github.com/c-saade/protist_id).*
+
 ## Introduction
 
 Working on ecosystem stability, my PhD led me to follow the [dynamics of microcosms](https://doi.org/10.1098/rspb.2022.0543) -- artificial, simplified ecosystem made of vials and tubes and inhabited by different species of unicellular organisms.

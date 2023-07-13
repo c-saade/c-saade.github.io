@@ -7,6 +7,8 @@ layout: "single"
 subtitle: "Analyzing yelp restaurant ratings to find delicious pizza."
 ---
 
+*The code and data for this project is available on [github](https://github.com/c-saade/pizza_analysis).*
+
 ## Summary
 
 This is the second part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon.

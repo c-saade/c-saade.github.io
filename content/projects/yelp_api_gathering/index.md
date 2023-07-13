@@ -9,6 +9,8 @@ cascade:
   featured_image: 'railway_restaurant_featured.jpg'
 ---
 
+*The code and data for this project is available on [github](https://github.com/c-saade/pizza_analysis).*
+
 ## Summary
 
 This is the first part of a data analysis project focused on finding a delicious pizza in my hometown of Lyon. Follow me as I:
