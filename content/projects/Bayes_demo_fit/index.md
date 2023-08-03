@@ -9,6 +9,7 @@ cascade:
   featured_image: 'lynx_featured.jpg'
 ---
 
+*The code and data for this project is available on [github](https://github.com/c-saade/bayes_demo_fit).*
 
 ## Introduction
 
