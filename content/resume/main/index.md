@@ -24,7 +24,7 @@ intro: |
  
  2019-2022, Université de Montpellier
  
- Working on the fascinating topic of ecosystem stability in the context of global changes. Conducting research at the crossroads of life science led me to:
+ Working on the fascinating topic of ecosystem stability in the context of global changes. Conducting research at the crossroads of life sciences and mathematics led me to:
     - Entirely automate species recognition and count from video data using [machine learning]({{< ref "/Species_id">}}), reaching up to 99% accuracy _vs._ 80% for human observers.
     This allowed to [monitor the dynamics of 270 microbial cultures](https://doi.org/10.1098/rspb.2022.0543), a tenfold increase from human recognition and counting. 
     - Succesfully fit complex demographic and epidemiological models to time series using [bayesian statistics]({{< ref "/bayes_demo_fit">}}).
