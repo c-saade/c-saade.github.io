@@ -15,6 +15,7 @@ intro: |
   - R for data science (Tidyverse, Rmarkdown, ggplot...)
   - Python for data science (Pandas, sklearn, seaborn...)
   - SQL
+  - Linux
   - Tableau
   
  # Experience
@@ -23,22 +24,26 @@ intro: |
  
  2019-2022, Université de Montpellier
  
- Working on the fascinating topic of ecosystem stability in the context of global changes. Conducting research at the crossroads of life science and mathematics led me to develop technical abilities, such as:
-    - [machine learning]({{< ref "/Species_id">}}), applied to automated species recognition from video data,
-    - bayesian statistics, to fit demographic and epidemiological models to experimental time series,
-    - formal mathematics (linear algebra, differential equations...), in particular the developpement of a dimension reduction methods for spatially structured dynamical systems.
+ Working on the fascinating topic of ecosystem stability in the context of global changes. Conducting research at the crossroads of life science led me to:
+    - Entirely automate species recognition and count from video data using [machine learning]({{< ref "/Species_id">}}), reaching up to 99% accuracy _vs._ 80% for human observers.
+    This allowed to [monitor the dynamics of 270 microbial cultures](https://doi.org/10.1098/rspb.2022.0543), a tenfold increase from human recognition and counting. 
+    - Succesfully fit complex demographic and epidemiological models to time series using [bayesian statistics]({{< ref "/bayes_demo_fit">}}).
+    This allowed to parameterize an _in silico_ [reproduction of a lab experiment](https://doi.org/10.1098/rspb.2022.0543) and to estimate the transmission rate and virulence of an [intra-cellular parasite](https://doi.org/10.1111/ele.13692).
+    - Develop a dimension reduction method for spatially structured dynamical systems using formal mathematics.
 
   ## Research internship in Evolutionary Game Theory
   
   2017, University of British Columbia - Vancouver
   
-  Investigating the effect of environmental heterogeneity and environment-agent feedbacks on the evolutionary stable strategies of classical games.
+  Investigating the effect of environmental heterogeneity and environmental feedbacks on the evolutionary stable strategies of classical games.
+  I developed a novel framework for evolutionary game theory in which an agent's strategy affects its local environment, and an agent's environment affects its fitness, resulting in a strategy-environment feedback.
+  This [research project](https://doi.org/10.1016/j.jtbi.2018.11.019) involved both numerical simulations and analytical modeling.
 
   ## Research internship in Macro-evolution
   
   2016, École Normale Supérieure - Paris
   
-  Developping methods to infer past phenotypes from the phylogenies of co-evolving clades (*e.g.*, fig and fig wasps).
+  Developping methods to infer past phenotypes from the phylogenies of co-evolving clades (*e.g.*, figs and fig wasps).
   A first step into the world of bayesian statistics that led me to code a bayesian integrator from scratch to handle the complex model structures involved.
   
   # Education
