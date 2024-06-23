@@ -8,7 +8,7 @@ show_intro: true
 intro: |
   I conducted a [PhD](https://www.theses.fr/2022UMONG048) in theoretical ecology regarding the dynamics and stability of spatially structured ecosystem.
   My research led me to develop my programming and data science skills to solve problems such as fitting demographic models on [ecological](https://doi.org/10.1111/ele.13692) [data](https://doi.org/10.1098/rspb.2022.0543) using bayesian statistics, or [automated species identification](https://doi.org/10.1098/rspb.2022.0543) and counting from video data.
-  I now intend to put my skills to use in the field of data science.
+  I currently use my skills as a statistician and data scientist at Sanofi, where I work on R&D of vaccines.
   
   # About this site
   I created this site to showcase some of my data-related projects.

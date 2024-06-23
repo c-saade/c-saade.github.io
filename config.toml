@@ -30,7 +30,7 @@ enableEmoji = true
 [params]
   orgName = "Camille Saade"
   orgLocal = ""
-  description = "PhD in Theoretical Ecology, Data Enthusiast."
+  description = "PhD in Theoretical Ecology, Statistics and Data Enthusiast."
   #favicon = "/img/favicon.ico"
   logo = "/img/home_icon.svg"
   mainSections = ["blog", "project", "talk"]

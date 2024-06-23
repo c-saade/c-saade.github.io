@@ -6,19 +6,28 @@ use_featured: false # if false, use most recent by date
 number_categories: 3 # set to zero to exclude
 show_intro: true
 intro: |
- From a fundamental research background, I enjoy tackling complex problems through data analysis.
+ From a fundamental research background, I enjoy tackling complex problems through statistics and data analysis.
  My [PhD](https://www.theses.fr/2022UMONG048) led me to work mainly with Python and R, but I'm always interested in learning new tools and approaches.
  I have a strong ability for self-learning, which allowed me to solve a wide variety of problems such as fitting demographic models on [ecological](https://doi.org/10.1111/ele.13692) [data](https://doi.org/10.1098/rspb.2022.0543) using bayesian statistics, or [automated species identification](https://doi.org/10.1098/rspb.2022.0543) and counting from videos data.
- I now intend to put my skills to use in the field of data science.
+ I currently use my skills as a statistician at Sanofi, where I work on R&D of vaccines.
  
  # Skills
-  - R for data science (Tidyverse, Rmarkdown, ggplot...)
+  - R for data science (Tidyverse, Rstan, Rshiny...)
   - Python for data science (Pandas, sklearn, seaborn...)
-  - SQL
-  - Linux
-  - Tableau
+  - Git
+  - Unix/Linux environments
+  - Machine learning
+  - Bayesian statistics
   
  # Experience
+ 
+ ## Biostatistician
+ since 2024, Sanofi - Lyon
+ 
+ Bringing my expertise in statistics and data to Sanofi's mRNA Center of Excellence -- a structure dedicated to the R&D of mRNA vaccines.
+ I work on various projects, among which:
+    - The development an R-package for thermostability analyses through bayesian statistics.
+    - Design of experiments, statistical analyses and data vizualisation.
  
  ## PhD in Theoretical Ecology
  
@@ -69,7 +78,7 @@ intro: |
   - Hauert, Christoph, **Camille Saade**, and Alex McAvoy. "[Asymmetric evolutionary games with environmental feedback](https://doi.org/10.1016/j.jtbi.2018.11.019)." Journal of theoretical biology 462 (2019): 347-360.
   
   # Interests
-  - Playing jazz (on guitar, bass or upright bass)
+  - Playing jazz
   - Rock Climbing
   - Sourdough baking and fermented foods
   
